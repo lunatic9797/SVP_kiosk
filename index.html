@@ -419,12 +419,11 @@ function enterPaymentTrap() {
   document.getElementById("donationGroup").classList.remove("hidden");
   document.getElementById("finalRealPayBtn").classList.remove("hidden");
 
+  // 함정 버튼들은 도망만 다님 (블러 X)
   const traps = ["donationYesBtn", "donationNoBtn", "donation1000","donation3000","donation10000"];
   traps.forEach(id => {
     const btn = document.getElementById(id);
     btn.onclick = resetGame;
-   
-    // 버튼만 도망다니고 블러는 없음
     btn.onmouseover = () => {
       btn.style.transform = `translate(${(Math.random()*60)-30}px, ${(Math.random()*60)-30}px)`;
     };
@@ -433,21 +432,36 @@ function enterPaymentTrap() {
     };
   });
 
+  /* -------------- [수정] 진짜 결제 성공 로직 -------------- */
   const realPay = document.getElementById("finalRealPayBtn");
+ 
   realPay.onclick = () => {
-    alert("🎉 축하합니다! 드디어 결제에 성공하셨습니다!");
-    location.reload();
+    // 1. 타이머 종료
+    clearInterval(timerInterval);
+   
+    // 2. 게임 화면 요소들 모두 숨기기
+    document.getElementById("kiosk").classList.add("hidden");
+    document.getElementById("finalRealPayBtn").classList.add("hidden");
+    document.getElementById("adPopup").classList.add("hidden");
+    document.getElementById("timer").classList.add("hidden");
+    document.getElementById("mission").classList.add("hidden");
+   
+    // 3. 성공 화면 보여주기
+    document.getElementById("successScreen").classList.remove("hidden");
   };
  
+  // 버튼 효과 유지
   realPay.onmouseover = () => {
-    realPay.style.filter = "blur(3px)";
+    realPay.style.filter = "blur(10px)";
     realPay.style.transform = "scale(0.7) translate(-10px, -10px)";
   };
   realPay.onmouseout = () => {
-    realPay.style.filter = "blur(3px)";
+    realPay.style.filter = "blur(5px)";
     realPay.style.transform = "scale(0.7)";
   };
 }
+
+
 
 function startTimer() {
   timerInterval = setInterval(() => {
@@ -475,4 +489,5 @@ document.getElementById("startBtn").onclick = () => {
 
 </body>
 </html>
+
 
