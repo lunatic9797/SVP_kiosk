@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>랜덤 레시피 키오스크</title>
+<title>SSDA 커피 키오스크</title>
 
 <style>
   /* ---------------- 기본 설정 ---------------- */
@@ -419,7 +419,6 @@ function enterPaymentTrap() {
   document.getElementById("donationGroup").classList.remove("hidden");
   document.getElementById("finalRealPayBtn").classList.remove("hidden");
 
-  // 함정 버튼들은 도망만 다님 (블러 X)
   const traps = ["donationYesBtn", "donationNoBtn", "donation1000","donation3000","donation10000"];
   traps.forEach(id => {
     const btn = document.getElementById(id);
@@ -432,35 +431,45 @@ function enterPaymentTrap() {
     };
   });
 
-  /* -------------- [수정] 진짜 결제 성공 로직 -------------- */
+  /* -------------------- [핵심 수정] 성공 로직 핸들러 -------------------- */
   const realPay = document.getElementById("finalRealPayBtn");
- 
-  realPay.onclick = () => {
-    // 1. 타이머 종료
-    clearInterval(timerInterval);
+
+  // 성공 처리 함수
+  const handleSuccess = (e) => {
+    // 이벤트 전파 방지 (중복 실행 방지)
+    if(e) e.preventDefault();
    
-    // 2. 게임 화면 요소들 모두 숨기기
+    clearInterval(timerInterval);
     document.getElementById("kiosk").classList.add("hidden");
     document.getElementById("finalRealPayBtn").classList.add("hidden");
     document.getElementById("adPopup").classList.add("hidden");
     document.getElementById("timer").classList.add("hidden");
     document.getElementById("mission").classList.add("hidden");
    
-    // 3. 성공 화면 보여주기
     document.getElementById("successScreen").classList.remove("hidden");
   };
+
+  // 1. PC용 클릭 이벤트
+  realPay.onclick = handleSuccess;
  
-  // 버튼 효과 유지
+  // 2. 모바일용 터치 이벤트 (중요: 버튼이 도망가기 전에 잡음)
+  realPay.ontouchend = handleSuccess;
+ 
+  // PC용 마우스 회피 효과 (모바일에서는 무시됨)
   realPay.onmouseover = () => {
-    realPay.style.filter = "blur(10px)";
-    realPay.style.transform = "scale(0.7) translate(-10px, -10px)";
+    // 모바일이 아닐 때만 효과 적용
+    if (!('ontouchstart' in window)) {
+        realPay.style.filter = "blur(10px)";
+        realPay.style.transform = "scale(0.7) translate(-10px, -10px)";
+    }
   };
   realPay.onmouseout = () => {
-    realPay.style.filter = "blur(5px)";
-    realPay.style.transform = "scale(0.7)";
+    if (!('ontouchstart' in window)) {
+        realPay.style.filter = "blur(5px)";
+        realPay.style.transform = "scale(0.7)";
+    }
   };
 }
-
 
 
 function startTimer() {
