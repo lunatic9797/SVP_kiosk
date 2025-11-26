@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>SSDA 커피 키오스크</title>
+<title>랜덤 레시피 키오스크 - HELL MODE</title>
 
 <style>
   /* ---------------- 기본 설정 ---------------- */
@@ -17,37 +17,60 @@
     padding-bottom: 120px;
   }
 
-  /* ---------------- 반응형 그리드 레이아웃 ---------------- */
+  /* ---------------- 성공 화면 (가장 위에 뜸) ---------------- */
+  #successScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #e6ffea;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+ 
+  #successMessage {
+    font-size: 40px;
+    font-weight: 900;
+    color: #2e7d32;
+    margin-bottom: 20px;
+    animation: popUp 0.5s ease-out;
+  }
+
+  @keyframes popUp {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* ---------------- 그리드 레이아웃 (6열 고정) ---------------- */
   #choices {
     margin: 20px auto;
-    width: 98%; /* 좌우 여백을 최소화해서 버튼 공간 확보 */
+    width: 98%;
     max-width: 1400px;
    
     display: grid;
-    /* [핵심] 무조건 가로 6개 고정 (모바일에서도 안 바뀜) */
+    /* 모바일/PC 상관없이 무조건 6칸 */
     grid-template-columns: repeat(6, 1fr);
-    gap: 4px; /* 버튼 간격을 좁혀서 공간 확보 */
+    gap: 4px;
   }
 
-  /* 모바일용 스타일 (화면 너비 768px 이하) */
+  /* 모바일용 스타일 (좁은 화면 대응) */
   @media (max-width: 768px) {
-    /* [수정됨] 여기서 grid-template-columns를 2개로 바꾸던 코드를 삭제했습니다.
-      이제 모바일에서도 위에서 설정한 6개가 그대로 적용됩니다.
-    */
-   
     button.choice-btn {
-      padding: 5px 2px !important; /* 내부 여백 최소화 */
-      font-size: 11px !important;  /* 6개씩 넣으려면 글씨가 작아야 함 */
-      min-height: 60px !important; /* 높이는 적당히 유지 */
-      letter-spacing: -1px;        /* 자간을 좁혀서 긴 단어 욱여넣기 */
+      padding: 5px 2px !important;
+      font-size: 11px !important;  
+      min-height: 60px !important;
+      letter-spacing: -1.5px;      
       line-height: 1.1;
     }
 
     #title { font-size: 20px !important; }
     #recipeBox { width: 95% !important; font-size: 14px !important; }
-   
-    /* 타이머 크기 조정 */
     #timer { font-size: 30px !important; }
+    #successMessage { font-size: 30px; }
   }
 
   #title {
@@ -83,26 +106,24 @@
 
   .hidden { display: none !important; }
 
-  /* ---------------- 애니메이션 ---------------- */
+  /* ---------------- 애니메이션 (블러 약하게 수정됨) ---------------- */
   .blurred {
     animation: blurPulse 2.2s infinite ease-in-out;
-    filter: blur(3px);
+    filter: blur(2px); /* 4px -> 2px 로 약화 */
   }
 
   @keyframes blurPulse {
-    0%   { filter: blur(3px); }
-    25%   { filter: blur(5px); }
-    50%  { filter: blur(3px); }
-    75%   { filter: blur(4px); }
-    100% { filter: blur(3px); }
+    0%   { filter: blur(2px); }
+    50%  { filter: blur(3px); } /* 최대 3px까지만 */
+    100% { filter: blur(2px); }
   }
 
   .shake {
     animation: shake 0.4s infinite alternate;
   }
   @keyframes shake {
-    from { transform: translateX(-3px); }
-    to   { transform: translateX(3px); }
+    from { transform: translateX(-2px); }
+    to   { transform: translateX(2px); }
   }
 
   /* ---------------- 버튼 디자인 ---------------- */
@@ -112,14 +133,14 @@
     width: 100%;
     min-height: 80px;
     border: none;
-    border-radius: 8px; /* 둥근 모서리 약간 줄임 */
+    border-radius: 8px;
     background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
     box-shadow: 0 4px 0 #b1b1b1, 0 2px 4px rgba(0,0,0,0.1);
     color: #222;
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
-    word-break: keep-all; /* 단어 단위 줄바꿈 시도 */
-    display: flex;        /* 글자 수직 중앙 정렬 */
+    word-break: keep-all;
+    display: flex;        
     align-items: center;
     justify-content: center;
   }
@@ -168,7 +189,7 @@
   }
   .donation-btn:active { transform: translateY(4px); box-shadow: none; }
 
-  /* 광고 팝업 (하단 배너 스타일) */
+  /* 광고 팝업 (하단 배너) */
   #adPopup {
     position: fixed;
     bottom: 0;
@@ -188,14 +209,43 @@
     gap: 10px;
   }
 
+  /* ---------------- 진짜 결제 버튼 (중요) ---------------- */
+  #finalRealPayBtn {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    transform: scale(0.75);
+    opacity: 0.9;
+    filter: blur(3px); /* 5px -> 3px 로 약화 (잘 보이게) */
+    background: #88ff99;
+    color: #000;
+    border: 2px solid #44aa55;
+    padding: 10px 15px;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 99999;
+    border-radius: 8px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ★ PC(마우스) 환경에서만 도망가고 흐려지게 함 (모바일 터치 오류 해결) ★ */
+  @media (hover: hover) {
+    #finalRealPayBtn:hover {
+      filter: blur(5px);
+      transform: scale(0.7) translate(-10px, -10px);
+    }
+  }
+
 </style>
 </head>
 
 <body>
 
-<div id="title">랜덤 레시피 키오스크<br><span style="color:red; font-size:0.8em;"></span></div>
+<div id="title">랜덤 레시피 키오스크<br><span style="color:red; font-size:0.8em;">HELL MODE</span></div>
 <div id="mission">
-🎯 <b>미션</b>: 제시된 레시피를 90초 안에 정확히 선택하시오.<br>
+🎯 <b>미션</b>: 제시된 레시피를 60초 안에 정확히 선택하시오.<br>
 (틀리면 처음으로 돌아갑니다!)
 </div>
 
@@ -204,7 +254,7 @@
   <div id="recipeText"></div>
 </div>
 
-<div id="timer">90</div>
+<div id="timer">60</div>
 <button id="startBtn">시작하기</button>
 
 <div id="kiosk" class="hidden">
@@ -214,6 +264,7 @@
 
   <div id="donationGroup" class="donation-container hidden">
     <button id="donationYesBtn" class="donation-btn shake" style="background:#ffb3b3; font-size: 24px;">❤️ 기부하기</button>
+    <button id="donationNoBtn" class="donation-btn shake" style="background:#b3d9ff;">기부 안하기</button>
     <button id="donation1000" class="donation-btn shake" style="background:#ffe0e0;">1,000원 기부</button>
     <button id="donation3000" class="donation-btn shake" style="background:#ffd1d1;">3,000원 기부</button>
     <button id="donation10000" class="donation-btn shake" style="background:#ffb3b3;">10,000원 기부</button>
@@ -234,25 +285,29 @@
   ">닫기</button>
 </div>
 
-<button id="finalRealPayBtn" class="hidden"
-  style="
-    position: fixed;
-    bottom: 60px; /* 광고 배너 바로 위 */
-    right: 15px;
-    transform: scale(0.7);
-    opacity: 0.8;
-    filter: blur(3px);
-    background: #FFFFFF;
-    color: #000;
-    border: 2px solid #FFFFFF;
-    padding: 10px 15px;
-    font-size: 15px;
-    z-index: 10000;
-    border-radius: 8px;
-    cursor: pointer;
-  ">
-  진짜 결제
-</button>
+<button id="finalRealPayBtn" class="hidden">진짜 결제</button>
+
+<div id="successScreen" class="hidden">
+  <div style="font-size:60px;">🎉</div>
+  <div id="successMessage">주문 성공!</div>
+  <div style="font-size:18px; margin-bottom:30px; color:#555;">
+    맛있는 음료가 곧 준비됩니다.
+  </div>
+  <button onclick="location.reload()"
+    style="
+      padding:15px 40px;
+      font-size:20px;
+      background:#44aa55;
+      color:white;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:bold;
+      box-shadow: 0 5px 0 #2e7d32;
+    ">
+    처음으로 돌아가기
+  </button>
+</div>
 
 <script>
 /* -------------------- 메뉴 데이터 -------------------- */
@@ -292,7 +347,7 @@ function generateRecipe() {
 
 /* -------------------- 단계 정보 -------------------- */
 let step = 1;
-let time = 90;
+let time = 60;
 let timerInterval;
 
 const correct = {
@@ -337,6 +392,7 @@ function resetGame() {
   document.getElementById("adPopup").classList.add("hidden");
   document.getElementById("donationGroup").classList.add("hidden");
   document.getElementById("finalRealPayBtn").classList.add("hidden");
+  document.getElementById("successScreen").classList.add("hidden");
  
   document.getElementById("choices").classList.remove("hidden");
   document.getElementById("stepTitle").innerText = stepsText[1];
@@ -356,11 +412,12 @@ function showAd() {
   setTimeout(() => { if(Math.random() < 0.6) showAd(); }, 5000);
 }
 
-/* -------------------- 블러 효과 -------------------- */
+/* -------------------- 블러 효과 (약하게 수정됨) -------------------- */
 function randomBlurShock() {
   const choices = document.getElementById("choices");
   if (!choices.classList.contains("hidden")) {
-    let randomBlur = Math.floor(Math.random()*6)+2;
+    // 블러 강도: 기존 4~9px -> 2~5px로 약화
+    let randomBlur = Math.floor(Math.random()*4)+2;
     choices.style.filter = `blur(${randomBlur}px)`;
     setTimeout(() => choices.style.filter = "", 300);
   }
@@ -382,10 +439,13 @@ function renderStep() {
     btn.className = "choice-btn";
     btn.innerText = text;
    
-    // 버튼 회피 효과 (모바일에서 6개일 때 더 어려워짐)
+    // 버튼 회피 효과 (모바일에서도 작동 유지, 단 6열이라 어려움)
     btn.onmouseover = () => {
-      btn.style.transform = `translate(${(Math.random()*30)-15}px, ${(Math.random()*30)-15}px)`;
-      box.style.filter = `blur(${2 + Math.random()*3}px)`;
+      // 블러 강도 약하게
+      if(window.matchMedia("(hover: hover)").matches) {
+          btn.style.transform = `translate(${(Math.random()*30)-15}px, ${(Math.random()*30)-15}px)`;
+          box.style.filter = `blur(${3 + Math.random()*2}px)`; // 약하게
+      }
     };
     btn.onmouseout = () => {
       btn.style.transform = "translate(0,0)";
@@ -411,66 +471,51 @@ function handleChoice(val) {
   renderStep();
 }
 
-/* -------------------- 결제 단계 트랩 -------------------- */
+/* -------------------- 결제 단계 트랩 (수정됨) -------------------- */
 function enterPaymentTrap() {
   document.getElementById("choices").classList.add("hidden");
   document.getElementById("stepTitle").innerText = "결제 전 안내 (주의!)";
 
   document.getElementById("donationGroup").classList.remove("hidden");
-  document.getElementById("finalRealPayBtn").classList.remove("hidden");
+ 
+  const realPay = document.getElementById("finalRealPayBtn");
+  realPay.classList.remove("hidden");
 
+  // 함정(기부) 버튼들 처리
   const traps = ["donationYesBtn", "donationNoBtn", "donation1000","donation3000","donation10000"];
   traps.forEach(id => {
     const btn = document.getElementById(id);
     btn.onclick = resetGame;
+   
+    // PC에서만 도망다니게 함 (모바일 오터치 방지)
     btn.onmouseover = () => {
-      btn.style.transform = `translate(${(Math.random()*60)-30}px, ${(Math.random()*60)-30}px)`;
+       if(window.matchMedia("(hover: hover)").matches) {
+          btn.style.transform = `translate(${(Math.random()*60)-30}px, ${(Math.random()*60)-30}px)`;
+       }
     };
     btn.onmouseout = () => {
       btn.style.transform = "translate(0,0)";
     };
   });
 
-  /* -------------------- [핵심 수정] 성공 로직 핸들러 -------------------- */
-  const realPay = document.getElementById("finalRealPayBtn");
+  // [수정] 진짜 결제 버튼 이벤트 (단순화 및 강화)
+  realPay.onclick = (e) => {
+    e.stopPropagation(); // 이벤트 버블링 방지
+    e.preventDefault();  // 기본 동작 방지
 
-  // 성공 처리 함수
-  const handleSuccess = (e) => {
-    // 이벤트 전파 방지 (중복 실행 방지)
-    if(e) e.preventDefault();
+    clearInterval(timerInterval); // 타이머 종료
    
-    clearInterval(timerInterval);
+    // UI 정리
     document.getElementById("kiosk").classList.add("hidden");
-    document.getElementById("finalRealPayBtn").classList.add("hidden");
+    realPay.classList.add("hidden");
     document.getElementById("adPopup").classList.add("hidden");
     document.getElementById("timer").classList.add("hidden");
     document.getElementById("mission").classList.add("hidden");
    
+    // 성공 화면 표시
     document.getElementById("successScreen").classList.remove("hidden");
   };
-
-  // 1. PC용 클릭 이벤트
-  realPay.onclick = handleSuccess;
- 
-  // 2. 모바일용 터치 이벤트 (중요: 버튼이 도망가기 전에 잡음)
-  realPay.ontouchend = handleSuccess;
- 
-  // PC용 마우스 회피 효과 (모바일에서는 무시됨)
-  realPay.onmouseover = () => {
-    // 모바일이 아닐 때만 효과 적용
-    if (!('ontouchstart' in window)) {
-        realPay.style.filter = "blur(10px)";
-        realPay.style.transform = "scale(0.7) translate(-10px, -10px)";
-    }
-  };
-  realPay.onmouseout = () => {
-    if (!('ontouchstart' in window)) {
-        realPay.style.filter = "blur(5px)";
-        realPay.style.transform = "scale(0.7)";
-    }
-  };
 }
-
 
 function startTimer() {
   timerInterval = setInterval(() => {
@@ -498,5 +543,3 @@ document.getElementById("startBtn").onclick = () => {
 
 </body>
 </html>
-
-
