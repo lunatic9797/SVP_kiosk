@@ -2,84 +2,187 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>랜덤 레시피 키오스크 - HELL MODE</title>
 
 <style>
-  body { 
-    font-family: sans-serif;
+  /* ---------------- 기본 설정 ---------------- */
+  body {
+    font-family: 'Pretendard', sans-serif;
     text-align: center;
     user-select: none;
+    background: #ffffff;
+    margin: 0;
+    overflow-x: hidden;
+    padding-bottom: 120px; /* 하단 광고/버튼 영역 확보 */
+  }
+
+  /* ---------------- 반응형 그리드 레이아웃 ---------------- */
+  #choices {
+    margin: 20px auto;
+    width: 95%;
+    max-width: 1400px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+  }
+
+  /* 모바일용 스타일 */
+  @media (max-width: 768px) {
+    #choices {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+   
+    button.choice-btn {
+      padding: 0 !important;
+      font-size: 26px !important;
+      min-height: 120px !important;
+    }
+
+    #title { font-size: 24px !important; }
+    #recipeBox { width: 92% !important; font-size: 18px !important; }
   }
 
   #title {
-    font-size: 26px;
-    font-weight: bold;
-    margin-top: 15px;
+    font-size: 32px;
+    font-weight: 800;
+    margin-top: 20px;
+    color: #333;
   }
 
-  #mission { font-size: 13px; }
+  #mission {
+    font-size: 16px;
+    margin-bottom: 15px;
+    line-height: 1.6;
+    color: #555;
+  }
 
   #recipeBox {
     background: #eef7ff;
-    padding: 10px;
+    padding: 20px;
     margin: 10px auto;
-    width: 300px;
-    border: 1px solid #91c4ff;
-    border-radius: 5px;
-    font-size: 13px;
+    width: 500px;
+    border: 3px solid #91c4ff;
+    border-radius: 15px;
+    font-size: 20px;
+    box-shadow: 0 6px 10px rgba(0,0,0,0.1);
   }
 
   #timer {
-    font-size: 22px;
-    color: red;
+    font-size: 40px;
+    color: #ff0000;
+    font-weight: 900;
     margin: 15px;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
   }
 
-  .hidden { display: none; }
+  .hidden { display: none !important; }
 
-  .blurred { filter: blur(2px); animation: blurPulse 2s infinite alternate; }
+  /* ---------------- 애니메이션 ---------------- */
+  .blurred {
+    animation: blurPulse 2.2s infinite ease-in-out;
+    filter: blur(3px);
+  }
+
   @keyframes blurPulse {
-    from { filter: blur(2px); }
-    to { filter: blur(4px); }
+    0%   { filter: blur(4px); }
+    25%  { filter: blur(6px); }
+    50% { filter: blur(4px); }
+    75% { filter: blur(6px); }
+    100% { filter: blur(4px); }
   }
 
   .shake {
     animation: shake 0.4s infinite alternate;
   }
   @keyframes shake {
-    from { transform: translateX(-2px); }
-    to   { transform: translateX(2px); }
+    from { transform: translateX(-3px); }
+    to   { transform: translateX(3px); }
   }
 
-  button {
-    font-size: 9px;
-    padding: 7px;
-    margin: 4px;
+  /* ---------------- 버튼 디자인 ---------------- */
+  button.choice-btn {
+    font-size: 22px;
+    font-weight: 800;
+    width: 100%;
+    min-height: 100px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
+    box-shadow: 0 6px 0 #b1b1b1, 0 4px 6px rgba(0,0,0,0.1);
+    color: #222;
     cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    word-break: keep-all;
+    line-height: 1.2;
   }
 
-  #choices { margin-top: 10px; }
+  button.choice-btn:active {
+    transform: translateY(6px) !important;
+    box-shadow: 0 0 0 #b1b1b1 inset;
+  }
 
-  /* 광고 */
+  #startBtn {
+    font-size: 24px;
+    font-weight: bold;
+    padding: 20px 60px;
+    cursor: pointer;
+    background: #44aa55;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    margin-top: 30px;
+    box-shadow: 0 6px 0 #2a7a35;
+  }
+  #startBtn:active { margin-top: 36px; box-shadow: none; }
+
+  /* 기부 버튼 스타일 */
+  .donation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 95%;
+    margin: 0 auto;
+    max-width: 500px;
+  }
+
+  .donation-btn {
+    border: none;
+    border-radius: 15px;
+    padding: 25px;
+    width: 100%;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+    font-weight: bold;
+    filter: none;
+    /* 중요: 마우스 올려도 블러 없으므로 별도 효과 X */
+  }
+  .donation-btn:active { transform: translateY(5px); box-shadow: none; }
+
+  /* 광고 팝업 (하단 배너 스타일) */
   #adPopup {
-    position: absolute;
-    top: 60px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     background: #ffec99;
-    width: 240px;
-    padding: 12px;
-    border: 2px solid #ff8800;
-    font-size: 12px;
-    z-index: 9999;
+    border-top: 4px solid #ff8800;
+    padding: 15px 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 9000; /* 결제 버튼(10000)보다는 아래 */
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
   }
-  #adClose {
-    position: absolute;
-    top: 1px;
-    right: 4px;
-    cursor: pointer;
-    font-size: 10px;
-  }
+
 </style>
 </head>
 
@@ -87,49 +190,77 @@
 
 <div id="title">랜덤 레시피 키오스크 – HELL MODE</div>
 <div id="mission">
-🎯 <b>미션</b>: 제시된 레시피를 60초 안에 정확하게 선택하시오.<br>
-⚠ 틀리면 즉시 초기화됩니다. 모든 버튼 중 함정이 존재합니다.
+🎯 <b>미션</b>: 제시된 레시피를 90초 안에 정확히 선택하시오.<br>
+(틀리면 처음으로 돌아갑니다!)
 </div>
 
 <div id="recipeBox">
-  <div><b>[오늘의 주문]</b></div>
+  <div style="margin-bottom:8px; color:#666; font-size:0.8em;">[오늘의 주문]</div>
   <div id="recipeText"></div>
 </div>
 
-<div id="timer">60</div>
+<div id="timer">90</div>
 <button id="startBtn">시작하기</button>
 
 <div id="kiosk" class="hidden">
-  <h2 id="stepTitle"></h2>
+  <h2 id="stepTitle" style="font-size:24px; margin:20px 0;"></h2>
+
   <div id="choices" class="blurred shake"></div>
 
-  <!-- 광고 -->
-  <div id="adPopup" class="hidden blurred shake">
-    📢 특별 할인! 지금 가입하면 50% 할인!
-    <span id="adClose">X</span>
+  <div id="donationGroup" class="donation-container hidden">
+    <button id="donationYesBtn" class="donation-btn shake" style="background:#ffb3b3; font-size: 28px;">❤️ 기부하기</button>
+    <button id="donationNoBtn" class="donation-btn shake" style="background:#b3d9ff;">기부 안하기</button>
+    <button id="donation1000" class="donation-btn shake" style="background:#ffe0e0;">1,000원 기부</button>
+    <button id="donation3000" class="donation-btn shake" style="background:#ffd1d1;">3,000원 기부</button>
+    <button id="donation10000" class="donation-btn shake" style="background:#ffb3b3;">10,000원 기부</button>
   </div>
-
-  <!-- 결제 -->
-  <button id="fakePayBtn" class="hidden blurred shake">결제하기</button>
-  <button id="realPayBtn" class="hidden">▶ 진짜 결제 버튼(0.6초)</button>
 </div>
 
+<div id="adPopup" class="hidden">
+  <span>📢 <b>특별 할인!</b> 지금 가입하면 <span style="color:red;">50%</span> 할인!</span>
+  <button id="adClose" style="
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 10px;
+  ">닫기 X</button>
+</div>
+
+<button id="finalRealPayBtn" class="hidden"
+  style="
+    position: fixed;
+    bottom: 80px; /* 광고 배너 바로 위쪽에 위치하도록 조정 */
+    right: 20px;
+    transform: scale(0.7);
+    opacity: 1;
+    filter: blur(1px);
+    background: #FFFFFF;
+    color: #808080;
+    border: 3px solid #FFFFFF;
+    padding: 15px 25px;
+    font-size: 18px;
+    z-index: 10000;
+    border-radius: 12px;
+    cursor: pointer;
+  ">
+  Payment
+</button>
 
 <script>
 /* -------------------- 메뉴 데이터 -------------------- */
 const drinkOptions = [
-  "아메리카노", "카페라떼", "바닐라라떼", "카라멜마끼아또",
-  "카푸치노", "콜드브루", "카라멜라떼",
-  "초코라떼", "고구마라떼", "녹차라떼",
-  "얼그레이티", "캐모마일티", "페퍼민트티",
-  "유자차", "레몬티", "자몽티", "홍차", "녹차"
+  "아메리카노","카페라떼","바닐라라떼","카라멜마끼아또",
+  "카푸치노","콜드브루","카라멜라떼",
+  "초코라떼","고구마라떼","녹차라떼",
+  "얼그레이티","캐모마일티","페퍼민트티",
+  "유자차","레몬티","자몽티","홍차","녹차"
 ];
-
 const hotIced = ["HOT", "ICE"];
-
-// 🔥 Venti 추가
 const sizes = ["Small", "Medium", "Large", "Venti"];
-
 const shot = ["Extra shot", "샷 추가 없음"];
 const iceAmount = ["얼음 많이", "얼음 적게"];
 const sugar = ["설탕 많이", "설탕 적게"];
@@ -137,31 +268,29 @@ const dineType = ["먹고가기", "테이크아웃"];
 
 /* -------------------- 정답 레시피 랜덤 생성 -------------------- */
 let recipe = {};
-
 function generateRecipe() {
   recipe = {
-    drink: drinkOptions[Math.floor(Math.random() * drinkOptions.length)],
-    temp: hotIced[Math.floor(Math.random() * hotIced.length)],
-    size: sizes[Math.floor(Math.random() * sizes.length)],
-    shot: shot[Math.floor(Math.random() * shot.length)],
-    ice: iceAmount[Math.floor(Math.random() * iceAmount.length)],
-    sugar: sugar[Math.floor(Math.random() * sugar.length)],
-    dine: dineType[Math.floor(Math.random() * dineType.length)]
+    drink: drinkOptions[Math.floor(Math.random()*drinkOptions.length)],
+    temp:  hotIced[Math.floor(Math.random()*hotIced.length)],
+    size:  sizes[Math.floor(Math.random()*sizes.length)],
+    shot:  shot[Math.floor(Math.random()*shot.length)],
+    ice:   iceAmount[Math.floor(Math.random()*iceAmount.length)],
+    sugar: sugar[Math.floor(Math.random()*sugar.length)],
+    dine:  dineType[Math.floor(Math.random()*dineType.length)]
   };
-
   document.getElementById("recipeText").innerHTML = `
-  ${recipe.drink} / ${recipe.temp} / ${recipe.size}<br>
-  ${recipe.shot} / ${recipe.ice} / ${recipe.sugar}<br>
-  ${recipe.dine}
+    <span style="font-size:1.3em; color:#0055ff; font-weight:bold;">${recipe.drink}</span><br>
+    ${recipe.temp} / ${recipe.size} / ${recipe.shot}<br>
+    ${recipe.ice} / ${recipe.sugar}<br>
+    <b style="color:#d32f2f;">${recipe.dine}</b>
   `;
 }
 
-/* -------------------- 단계 설정 -------------------- */
+/* -------------------- 단계 정보 -------------------- */
 let step = 1;
-let time = 60;
+let time = 90;
 let timerInterval;
 
-// 정답 매칭 함수
 const correct = {
   1: () => recipe.drink,
   2: () => recipe.temp,
@@ -192,121 +321,157 @@ const stageButtons = {
   7: dineType
 };
 
-/* -------------------- 버튼 배열 셔플 -------------------- */
 function shuffle(array) {
   return array.sort(() => Math.random() - 0.5);
 }
 
 /* -------------------- 초기화 -------------------- */
 function resetGame() {
-  alert("⚠ 잘못 선택했습니다! 처음으로 돌아갑니다.");
+  alert("⚠ 잘못 선택했습니다! 처음 단계로 돌아갑니다.");
   step = 1;
+
+  document.getElementById("adPopup").classList.add("hidden");
+  document.getElementById("donationGroup").classList.add("hidden");
+  document.getElementById("finalRealPayBtn").classList.add("hidden");
+ 
+  document.getElementById("choices").classList.remove("hidden");
+  document.getElementById("stepTitle").innerText = stepsText[1];
+  document.getElementById("kiosk").style.filter = "";
+
   renderStep();
 }
 
-/* -------------------- 광고 -------------------- */
+/* -------------------- 광고 (하단 배너) -------------------- */
 function showAd() {
-  let ad = document.getElementById("adPopup");
+  const ad = document.getElementById("adPopup");
   ad.classList.remove("hidden");
-
+ 
   const close = document.getElementById("adClose");
-
-  close.onmouseover = () => {
-    close.style.top = (Math.random() * 20) + "px";
-    close.style.right = (Math.random() * 20) + "px";
-  };
-
+  // 닫기 버튼은 배너 안에 얌전히 있음
   close.onclick = () => ad.classList.add("hidden");
 
-  setTimeout(() => {
-    if (Math.random() < 0.6) showAd();
-  }, 3000);
+  // 가끔씩 다시 나타남
+  setTimeout(() => { if(Math.random() < 0.6) showAd(); }, 5000);
 }
 
-/* -------------------- 단계 화면 표시 -------------------- */
+/* -------------------- 블러 효과 -------------------- */
+function randomBlurShock() {
+  const choices = document.getElementById("choices");
+  if (!choices.classList.contains("hidden")) {
+    let randomBlur = Math.floor(Math.random()*6)+2;
+    choices.style.filter = `blur(${randomBlur}px)`;
+    setTimeout(() => choices.style.filter = "", 300);
+  }
+}
+setInterval(() => randomBlurShock(), Math.random()*2500 + 1500);
+
+/* -------------------- 단계 렌더링 -------------------- */
 function renderStep() {
   document.getElementById("stepTitle").innerText = stepsText[step];
-
   const box = document.getElementById("choices");
   box.innerHTML = "";
+  box.classList.remove("hidden");
+  document.getElementById("donationGroup").classList.add("hidden");
 
-  // 🔥 버튼 순서를 랜덤으로 섞음
   let randomized = shuffle([...stageButtons[step]]);
 
   randomized.forEach(text => {
     let btn = document.createElement("button");
+    btn.className = "choice-btn";
     btn.innerText = text;
-
-    // 버튼 도망 알고리즘
+   
+    // 일반 메뉴 버튼 회피 효과는 유지
     btn.onmouseover = () => {
-      btn.style.transform =
-        `translate(${(Math.random()*60)-30}px, ${(Math.random()*60)-30}px)`;
+      btn.style.transform = `translate(${(Math.random()*40)-20}px, ${(Math.random()*40)-20}px)`;
+      box.style.filter = `blur(${2 + Math.random()*3}px)`;
     };
-
+    btn.onmouseout = () => {
+      btn.style.transform = "translate(0,0)";
+      box.style.filter = "";
+    };
+   
     btn.onclick = () => handleChoice(text);
-
     box.appendChild(btn);
   });
 }
 
-/* -------------------- 선택 처리 -------------------- */
 function handleChoice(val) {
   if (val !== correct[step]()) {
     showAd();
     resetGame();
     return;
   }
-
   step++;
-
   if (step === 8) {
-    enterPayment();
+    enterPaymentTrap();
     return;
   }
-
   renderStep();
 }
 
-/* -------------------- 결제 단계 -------------------- */
-function enterPayment() {
+/* -------------------- 결제 단계 트랩 -------------------- */
+function enterPaymentTrap() {
   document.getElementById("choices").classList.add("hidden");
-  document.getElementById("fakePayBtn").classList.remove("hidden");
-  document.getElementById("stepTitle").innerText = "최종 결제 단계";
+  document.getElementById("stepTitle").innerText = "결제 전 안내 (주의!)";
 
-  document.getElementById("fakePayBtn").onclick = () => {
-    alert("결제 오류! 다시 시도하세요.");
-    let realBtn = document.getElementById("realPayBtn");
-    realBtn.classList.remove("hidden");
+  document.getElementById("donationGroup").classList.remove("hidden");
+  document.getElementById("finalRealPayBtn").classList.remove("hidden");
 
-    setTimeout(() => realBtn.classList.add("hidden"), 600);
-  };
+  // 함정(기부) 버튼들
+  const traps = ["donationYesBtn", "donationNoBtn", "donation1000","donation3000","donation10000"];
+  traps.forEach(id => {
+    const btn = document.getElementById(id);
+    btn.onclick = resetGame;
+   
+    // [수정] 마우스 오버 시 블러 효과 제거
+    // 단순히 버튼만 도망다니고, 화면 블러(kioskContainer.filter)는 적용하지 않음
+    btn.onmouseover = () => {
+      btn.style.transform = `translate(${(Math.random()*60)-30}px, ${(Math.random()*60)-30}px)`;
+    };
+    btn.onmouseout = () => {
+      btn.style.transform = "translate(0,0)";
+    };
+  });
 
-  document.getElementById("realPayBtn").onclick = () => {
-    alert("🎉 성공! 랜덤 레시피를 정확히 선택했습니다!");
+  // 진짜 결제
+  const realPay = document.getElementById("finalRealPayBtn");
+  realPay.onclick = () => {
+    alert("🎉 축하합니다! 드디어 결제에 성공하셨습니다!");
     location.reload();
+  };
+ 
+  // 진짜 버튼 흐림 효과는 유지 (찾기 어렵게)
+  realPay.onmouseover = () => {
+    realPay.style.filter = "blur(5px)";
+    realPay.style.transform = "scale(0.7) translate(-10px, -10px)";
+  };
+  realPay.onmouseout = () => {
+    realPay.style.filter = "blur(5px)";
+    realPay.style.transform = "scale(0.7)";
   };
 }
 
-/* -------------------- 타이머 -------------------- */
 function startTimer() {
   timerInterval = setInterval(() => {
-    time -= Math.floor(Math.random()*3)+1;
+    time -= Math.floor(Math.random()*2)+1;
     if (time <= 0) {
-      alert("⛔ 시간 초과!");
-      location.reload();
+        document.getElementById("timer").innerText = "0";
+        alert("⛔ 시간 초과!");
+        location.reload();
+        clearInterval(timerInterval);
+        return;
     }
     document.getElementById("timer").innerText = time;
   }, 1000);
 }
 
-/* -------------------- 시작 버튼 -------------------- */
 document.getElementById("startBtn").onclick = () => {
   generateRecipe();
   document.getElementById("startBtn").classList.add("hidden");
   document.getElementById("kiosk").classList.remove("hidden");
   startTimer();
   renderStep();
-  setTimeout(showAd, 3000);
+  setTimeout(showAd, 2000);
 };
 </script>
 
