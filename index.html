@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>랜덤 레시피 키오스크 - HELL MODE</title>
+
+<style>
+  body { 
+    font-family: sans-serif;
+    text-align: center;
+    user-select: none;
+  }
+
+  #title {
+    font-size: 26px;
+    font-weight: bold;
+    margin-top: 15px;
+  }
+
+  #mission { font-size: 13px; }
+
+  #recipeBox {
+    background: #eef7ff;
+    padding: 10px;
+    margin: 10px auto;
+    width: 300px;
+    border: 1px solid #91c4ff;
+    border-radius: 5px;
+    font-size: 13px;
+  }
+
+  #timer {
+    font-size: 22px;
+    color: red;
+    margin: 15px;
+  }
+
+  .hidden { display: none; }
+
+  .blurred { filter: blur(2px); animation: blurPulse 2s infinite alternate; }
+  @keyframes blurPulse {
+    from { filter: blur(2px); }
+    to { filter: blur(4px); }
+  }
+
+  .shake {
+    animation: shake 0.4s infinite alternate;
+  }
+  @keyframes shake {
+    from { transform: translateX(-2px); }
+    to   { transform: translateX(2px); }
+  }
+
+  button {
+    font-size: 9px;
+    padding: 7px;
+    margin: 4px;
+    cursor: pointer;
+  }
+
+  #choices { margin-top: 10px; }
+
+  /* 광고 */
+  #adPopup {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffec99;
+    width: 240px;
+    padding: 12px;
+    border: 2px solid #ff8800;
+    font-size: 12px;
+    z-index: 9999;
+  }
+  #adClose {
+    position: absolute;
+    top: 1px;
+    right: 4px;
+    cursor: pointer;
+    font-size: 10px;
+  }
+</style>
+</head>
+
+<body>
+
+<div id="title">랜덤 레시피 키오스크 – HELL MODE</div>
+<div id="mission">
+🎯 <b>미션</b>: 제시된 레시피를 60초 안에 정확하게 선택하시오.<br>
+⚠ 틀리면 즉시 초기화됩니다. 모든 버튼 중 함정이 존재합니다.
+</div>
+
+<div id="recipeBox">
+  <div><b>[오늘의 주문]</b></div>
+  <div id="recipeText"></div>
+</div>
+
+<div id="timer">60</div>
+<button id="startBtn">시작하기</button>
+
+<div id="kiosk" class="hidden">
+  <h2 id="stepTitle"></h2>
+  <div id="choices" class="blurred shake"></div>
+
+  <!-- 광고 -->
+  <div id="adPopup" class="hidden blurred shake">
+    📢 특별 할인! 지금 가입하면 50% 할인!
+    <span id="adClose">X</span>
+  </div>
+
+  <!-- 결제 -->
+  <button id="fakePayBtn" class="hidden blurred shake">결제하기</button>
+  <button id="realPayBtn" class="hidden">▶ 진짜 결제 버튼(0.6초)</button>
+</div>
+
+
+<script>
+/* -------------------- 메뉴 데이터 -------------------- */
+const drinkOptions = [
+  "아메리카노", "카페라떼", "바닐라라떼", "카라멜마끼아또",
+  "카푸치노", "콜드브루", "카라멜라떼",
+  "초코라떼", "고구마라떼", "녹차라떼",
+  "얼그레이티", "캐모마일티", "페퍼민트티",
+  "유자차", "레몬티", "자몽티", "홍차", "녹차"
+];
+
+const hotIced = ["HOT", "ICE"];
+
+// 🔥 Venti 추가
+const sizes = ["Small", "Medium", "Large", "Venti"];
+
+const shot = ["Extra shot", "샷 추가 없음"];
+const iceAmount = ["얼음 많이", "얼음 적게"];
+const sugar = ["설탕 많이", "설탕 적게"];
+const dineType = ["먹고가기", "테이크아웃"];
+
+/* -------------------- 정답 레시피 랜덤 생성 -------------------- */
+let recipe = {};
+
+function generateRecipe() {
+  recipe = {
+    drink: drinkOptions[Math.floor(Math.random() * drinkOptions.length)],
+    temp: hotIced[Math.floor(Math.random() * hotIced.length)],
+    size: sizes[Math.floor(Math.random() * sizes.length)],
+    shot: shot[Math.floor(Math.random() * shot.length)],
+    ice: iceAmount[Math.floor(Math.random() * iceAmount.length)],
+    sugar: sugar[Math.floor(Math.random() * sugar.length)],
+    dine: dineType[Math.floor(Math.random() * dineType.length)]
+  };
+
+  document.getElementById("recipeText").innerHTML = `
+  ${recipe.drink} / ${recipe.temp} / ${recipe.size}<br>
+  ${recipe.shot} / ${recipe.ice} / ${recipe.sugar}<br>
+  ${recipe.dine}
+  `;
+}
+
+/* -------------------- 단계 설정 -------------------- */
+let step = 1;
+let time = 60;
+let timerInterval;
+
+// 정답 매칭 함수
+const correct = {
+  1: () => recipe.drink,
+  2: () => recipe.temp,
+  3: () => recipe.size,
+  4: () => recipe.shot,
+  5: () => recipe.ice,
+  6: () => recipe.sugar,
+  7: () => recipe.dine
+};
+
+const stepsText = {
+  1: "1단계: 음료 선택",
+  2: "2단계: HOT / ICE",
+  3: "3단계: 사이즈 선택",
+  4: "4단계: 샷 추가 여부",
+  5: "5단계: 얼음양 선택",
+  6: "6단계: 설탕 양 선택",
+  7: "7단계: 먹고가기 / 테이크아웃"
+};
+
+const stageButtons = {
+  1: drinkOptions,
+  2: hotIced,
+  3: sizes,
+  4: shot,
+  5: iceAmount,
+  6: sugar,
+  7: dineType
+};
+
+/* -------------------- 버튼 배열 셔플 -------------------- */
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+/* -------------------- 초기화 -------------------- */
+function resetGame() {
+  alert("⚠ 잘못 선택했습니다! 처음으로 돌아갑니다.");
+  step = 1;
+  renderStep();
+}
+
+/* -------------------- 광고 -------------------- */
+function showAd() {
+  let ad = document.getElementById("adPopup");
+  ad.classList.remove("hidden");
+
+  const close = document.getElementById("adClose");
+
+  close.onmouseover = () => {
+    close.style.top = (Math.random() * 20) + "px";
+    close.style.right = (Math.random() * 20) + "px";
+  };
+
+  close.onclick = () => ad.classList.add("hidden");
+
+  setTimeout(() => {
+    if (Math.random() < 0.6) showAd();
+  }, 3000);
+}
+
+/* -------------------- 단계 화면 표시 -------------------- */
+function renderStep() {
+  document.getElementById("stepTitle").innerText = stepsText[step];
+
+  const box = document.getElementById("choices");
+  box.innerHTML = "";
+
+  // 🔥 버튼 순서를 랜덤으로 섞음
+  let randomized = shuffle([...stageButtons[step]]);
+
+  randomized.forEach(text => {
+    let btn = document.createElement("button");
+    btn.innerText = text;
+
+    // 버튼 도망 알고리즘
+    btn.onmouseover = () => {
+      btn.style.transform =
+        `translate(${(Math.random()*60)-30}px, ${(Math.random()*60)-30}px)`;
+    };
+
+    btn.onclick = () => handleChoice(text);
+
+    box.appendChild(btn);
+  });
+}
+
+/* -------------------- 선택 처리 -------------------- */
+function handleChoice(val) {
+  if (val !== correct[step]()) {
+    showAd();
+    resetGame();
+    return;
+  }
+
+  step++;
+
+  if (step === 8) {
+    enterPayment();
+    return;
+  }
+
+  renderStep();
+}
+
+/* -------------------- 결제 단계 -------------------- */
+function enterPayment() {
+  document.getElementById("choices").classList.add("hidden");
+  document.getElementById("fakePayBtn").classList.remove("hidden");
+  document.getElementById("stepTitle").innerText = "최종 결제 단계";
+
+  document.getElementById("fakePayBtn").onclick = () => {
+    alert("결제 오류! 다시 시도하세요.");
+    let realBtn = document.getElementById("realPayBtn");
+    realBtn.classList.remove("hidden");
+
+    setTimeout(() => realBtn.classList.add("hidden"), 600);
+  };
+
+  document.getElementById("realPayBtn").onclick = () => {
+    alert("🎉 성공! 랜덤 레시피를 정확히 선택했습니다!");
+    location.reload();
+  };
+}
+
+/* -------------------- 타이머 -------------------- */
+function startTimer() {
+  timerInterval = setInterval(() => {
+    time -= Math.floor(Math.random()*3)+1;
+    if (time <= 0) {
+      alert("⛔ 시간 초과!");
+      location.reload();
+    }
+    document.getElementById("timer").innerText = time;
+  }, 1000);
+}
+
+/* -------------------- 시작 버튼 -------------------- */
+document.getElementById("startBtn").onclick = () => {
+  generateRecipe();
+  document.getElementById("startBtn").classList.add("hidden");
+  document.getElementById("kiosk").classList.remove("hidden");
+  startTimer();
+  renderStep();
+  setTimeout(showAd, 3000);
+};
+</script>
+
+</body>
+</html>
