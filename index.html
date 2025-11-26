@@ -195,7 +195,7 @@
 
 <div id="title">랜덤 레시피 키오스크<br><span style="color:red; font-size:0.8em;"></span></div>
 <div id="mission">
-🎯 <b>미션</b>: 제시된 레시피를 60초 안에 정확히 선택하시오.<br>
+🎯 <b>미션</b>: 제시된 레시피를 90초 안에 정확히 선택하시오.<br>
 (틀리면 처음으로 돌아갑니다!)
 </div>
 
@@ -204,7 +204,7 @@
   <div id="recipeText"></div>
 </div>
 
-<div id="timer">60</div>
+<div id="timer">90</div>
 <button id="startBtn">시작하기</button>
 
 <div id="kiosk" class="hidden">
@@ -293,7 +293,7 @@ function generateRecipe() {
 
 /* -------------------- 단계 정보 -------------------- */
 let step = 1;
-let time = 60;
+let time = 90;
 let timerInterval;
 
 const correct = {
