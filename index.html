@@ -86,13 +86,15 @@
   /* ---------------- 애니메이션 ---------------- */
   .blurred {
     animation: blurPulse 2.2s infinite ease-in-out;
-    filter: blur(4px);
+    filter: blur(3px);
   }
 
   @keyframes blurPulse {
-    0%   { filter: blur(4px); }
-    50%  { filter: blur(6px); }
-    100% { filter: blur(4px); }
+    0%   { filter: blur(3px); }
+    25%   { filter: blur(5px); }
+    50%  { filter: blur(3px); }
+    75%   { filter: blur(4px); }
+    100% { filter: blur(3px); }
   }
 
   .shake {
@@ -240,13 +242,12 @@
     right: 15px;
     transform: scale(0.7);
     opacity: 0.8;
-    filter: blur(5px);
-    background: #88ff99;
+    filter: blur(3px);
+    background: #FFFFFF;
     color: #000;
-    border: 2px solid #44aa55;
+    border: 2px solid #FFFFFF;
     padding: 10px 15px;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 15px;
     z-index: 10000;
     border-radius: 8px;
     cursor: pointer;
@@ -360,7 +361,7 @@ function showAd() {
 function randomBlurShock() {
   const choices = document.getElementById("choices");
   if (!choices.classList.contains("hidden")) {
-    let randomBlur = Math.floor(Math.random()*6)+4;
+    let randomBlur = Math.floor(Math.random()*6)+2;
     choices.style.filter = `blur(${randomBlur}px)`;
     setTimeout(() => choices.style.filter = "", 300);
   }
@@ -385,7 +386,7 @@ function renderStep() {
     // 버튼 회피 효과 (모바일에서 6개일 때 더 어려워짐)
     btn.onmouseover = () => {
       btn.style.transform = `translate(${(Math.random()*30)-15}px, ${(Math.random()*30)-15}px)`;
-      box.style.filter = `blur(${5 + Math.random()*3}px)`;
+      box.style.filter = `blur(${2 + Math.random()*3}px)`;
     };
     btn.onmouseout = () => {
       btn.style.transform = "translate(0,0)";
@@ -440,11 +441,11 @@ function enterPaymentTrap() {
   };
  
   realPay.onmouseover = () => {
-    realPay.style.filter = "blur(10px)";
+    realPay.style.filter = "blur(3px)";
     realPay.style.transform = "scale(0.7) translate(-10px, -10px)";
   };
   realPay.onmouseout = () => {
-    realPay.style.filter = "blur(5px)";
+    realPay.style.filter = "blur(3px)";
     realPay.style.transform = "scale(0.7)";
   };
 }
