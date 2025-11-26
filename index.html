@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>랜덤 레시피 키오스크 - HELL MODE</title>
+<title>랜덤 레시피 키오스크</title>
 
 <style>
   /* ---------------- 기본 설정 ---------------- */
@@ -216,10 +216,9 @@
     right: 20px;
     transform: scale(0.75);
     opacity: 0.9;
-    filter: blur(3px); /* 5px -> 3px 로 약화 (잘 보이게) */
-    background: #88ff99;
+    background: #FFFFFF;
     color: #000;
-    border: 2px solid #44aa55;
+    border: 2px solid #FFFFFF;
     padding: 10px 15px;
     font-size: 18px;
     font-weight: bold;
@@ -243,9 +242,9 @@
 
 <body>
 
-<div id="title">랜덤 레시피 키오스크<br><span style="color:red; font-size:0.8em;">HELL MODE</span></div>
+<div id="title">랜덤 레시피 키오스크<br><span style="color:red; font-size:0.8em;"></span></div>
 <div id="mission">
-🎯 <b>미션</b>: 제시된 레시피를 60초 안에 정확히 선택하시오.<br>
+🎯 <b>미션</b>: 제시된 레시피를 90초 안에 정확히 선택하시오.<br>
 (틀리면 처음으로 돌아갑니다!)
 </div>
 
@@ -264,7 +263,6 @@
 
   <div id="donationGroup" class="donation-container hidden">
     <button id="donationYesBtn" class="donation-btn shake" style="background:#ffb3b3; font-size: 24px;">❤️ 기부하기</button>
-    <button id="donationNoBtn" class="donation-btn shake" style="background:#b3d9ff;">기부 안하기</button>
     <button id="donation1000" class="donation-btn shake" style="background:#ffe0e0;">1,000원 기부</button>
     <button id="donation3000" class="donation-btn shake" style="background:#ffd1d1;">3,000원 기부</button>
     <button id="donation10000" class="donation-btn shake" style="background:#ffb3b3;">10,000원 기부</button>
@@ -347,7 +345,7 @@ function generateRecipe() {
 
 /* -------------------- 단계 정보 -------------------- */
 let step = 1;
-let time = 60;
+let time = 90;
 let timerInterval;
 
 const correct = {
@@ -543,3 +541,4 @@ document.getElementById("startBtn").onclick = () => {
 
 </body>
 </html>
+
