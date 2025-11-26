@@ -14,34 +14,40 @@
     background: #ffffff;
     margin: 0;
     overflow-x: hidden;
-    padding-bottom: 120px; /* 하단 광고/버튼 영역 확보 */
+    padding-bottom: 120px;
   }
 
   /* ---------------- 반응형 그리드 레이아웃 ---------------- */
   #choices {
     margin: 20px auto;
-    width: 95%;
+    width: 98%; /* 좌우 여백을 최소화해서 버튼 공간 확보 */
     max-width: 1400px;
+   
     display: grid;
+    /* [핵심] 무조건 가로 6개 고정 (모바일에서도 안 바뀜) */
     grid-template-columns: repeat(6, 1fr);
-    gap: 12px;
+    gap: 4px; /* 버튼 간격을 좁혀서 공간 확보 */
   }
 
-  /* 모바일용 스타일 */
+  /* 모바일용 스타일 (화면 너비 768px 이하) */
   @media (max-width: 768px) {
-    #choices {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-    }
+    /* [수정됨] 여기서 grid-template-columns를 2개로 바꾸던 코드를 삭제했습니다.
+      이제 모바일에서도 위에서 설정한 6개가 그대로 적용됩니다.
+    */
    
     button.choice-btn {
-      padding: 0 !important;
-      font-size: 26px !important;
-      min-height: 120px !important;
+      padding: 5px 2px !important; /* 내부 여백 최소화 */
+      font-size: 11px !important;  /* 6개씩 넣으려면 글씨가 작아야 함 */
+      min-height: 60px !important; /* 높이는 적당히 유지 */
+      letter-spacing: -1px;        /* 자간을 좁혀서 긴 단어 욱여넣기 */
+      line-height: 1.1;
     }
 
-    #title { font-size: 24px !important; }
-    #recipeBox { width: 92% !important; font-size: 18px !important; }
+    #title { font-size: 20px !important; }
+    #recipeBox { width: 95% !important; font-size: 14px !important; }
+   
+    /* 타이머 크기 조정 */
+    #timer { font-size: 30px !important; }
   }
 
   #title {
@@ -52,15 +58,14 @@
   }
 
   #mission {
-    font-size: 16px;
-    margin-bottom: 15px;
-    line-height: 1.6;
+    font-size: 14px;
+    margin-bottom: 10px;
     color: #555;
   }
 
   #recipeBox {
     background: #eef7ff;
-    padding: 20px;
+    padding: 15px;
     margin: 10px auto;
     width: 500px;
     border: 3px solid #91c4ff;
@@ -74,7 +79,6 @@
     color: #ff0000;
     font-weight: 900;
     margin: 15px;
-    text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
   }
 
   .hidden { display: none !important; }
@@ -82,14 +86,12 @@
   /* ---------------- 애니메이션 ---------------- */
   .blurred {
     animation: blurPulse 2.2s infinite ease-in-out;
-    filter: blur(3px);
+    filter: blur(4px);
   }
 
   @keyframes blurPulse {
     0%   { filter: blur(4px); }
-    25%  { filter: blur(6px); }
-    50% { filter: blur(4px); }
-    75% { filter: blur(6px); }
+    50%  { filter: blur(6px); }
     100% { filter: blur(4px); }
   }
 
@@ -103,46 +105,48 @@
 
   /* ---------------- 버튼 디자인 ---------------- */
   button.choice-btn {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 800;
     width: 100%;
-    min-height: 100px;
+    min-height: 80px;
     border: none;
-    border-radius: 16px;
+    border-radius: 8px; /* 둥근 모서리 약간 줄임 */
     background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
-    box-shadow: 0 6px 0 #b1b1b1, 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 0 #b1b1b1, 0 2px 4px rgba(0,0,0,0.1);
     color: #222;
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
-    word-break: keep-all;
-    line-height: 1.2;
+    word-break: keep-all; /* 단어 단위 줄바꿈 시도 */
+    display: flex;        /* 글자 수직 중앙 정렬 */
+    align-items: center;
+    justify-content: center;
   }
 
   button.choice-btn:active {
-    transform: translateY(6px) !important;
+    transform: translateY(4px) !important;
     box-shadow: 0 0 0 #b1b1b1 inset;
   }
 
   #startBtn {
     font-size: 24px;
     font-weight: bold;
-    padding: 20px 60px;
+    padding: 15px 40px;
     cursor: pointer;
     background: #44aa55;
     color: white;
     border: none;
     border-radius: 15px;
-    margin-top: 30px;
+    margin-top: 20px;
     box-shadow: 0 6px 0 #2a7a35;
   }
-  #startBtn:active { margin-top: 36px; box-shadow: none; }
+  #startBtn:active { margin-top: 26px; box-shadow: none; }
 
   /* 기부 버튼 스타일 */
   .donation-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
     width: 95%;
     margin: 0 auto;
     max-width: 500px;
@@ -150,18 +154,17 @@
 
   .donation-btn {
     border: none;
-    border-radius: 15px;
-    padding: 25px;
+    border-radius: 10px;
+    padding: 15px;
     width: 100%;
-    font-size: 24px;
+    font-size: 20px;
     cursor: pointer;
     color: #333;
-    box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.2);
     font-weight: bold;
     filter: none;
-    /* 중요: 마우스 올려도 블러 없으므로 별도 효과 X */
   }
-  .donation-btn:active { transform: translateY(5px); box-shadow: none; }
+  .donation-btn:active { transform: translateY(4px); box-shadow: none; }
 
   /* 광고 팝업 (하단 배너 스타일) */
   #adPopup {
@@ -171,11 +174,11 @@
     width: 100%;
     background: #ffec99;
     border-top: 4px solid #ff8800;
-    padding: 15px 0;
+    padding: 12px 0;
     text-align: center;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
-    z-index: 9000; /* 결제 버튼(10000)보다는 아래 */
+    z-index: 9000;
     box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
     display: flex;
     justify-content: center;
@@ -188,27 +191,27 @@
 
 <body>
 
-<div id="title">랜덤 레시피 키오스크 – HELL MODE</div>
+<div id="title">랜덤 레시피 키오스크<br><span style="color:red; font-size:0.8em;">HELL MODE</span></div>
 <div id="mission">
-🎯 <b>미션</b>: 제시된 레시피를 90초 안에 정확히 선택하시오.<br>
+🎯 <b>미션</b>: 제시된 레시피를 60초 안에 정확히 선택하시오.<br>
 (틀리면 처음으로 돌아갑니다!)
 </div>
 
 <div id="recipeBox">
-  <div style="margin-bottom:8px; color:#666; font-size:0.8em;">[오늘의 주문]</div>
+  <div style="margin-bottom:5px; color:#666; font-size:0.8em;">[오늘의 주문]</div>
   <div id="recipeText"></div>
 </div>
 
-<div id="timer">90</div>
+<div id="timer">60</div>
 <button id="startBtn">시작하기</button>
 
 <div id="kiosk" class="hidden">
-  <h2 id="stepTitle" style="font-size:24px; margin:20px 0;"></h2>
+  <h2 id="stepTitle" style="font-size:20px; margin:15px 0;"></h2>
 
   <div id="choices" class="blurred shake"></div>
 
   <div id="donationGroup" class="donation-container hidden">
-    <button id="donationYesBtn" class="donation-btn shake" style="background:#ffb3b3; font-size: 28px;">❤️ 기부하기</button>
+    <button id="donationYesBtn" class="donation-btn shake" style="background:#ffb3b3; font-size: 24px;">❤️ 기부하기</button>
     <button id="donationNoBtn" class="donation-btn shake" style="background:#b3d9ff;">기부 안하기</button>
     <button id="donation1000" class="donation-btn shake" style="background:#ffe0e0;">1,000원 기부</button>
     <button id="donation3000" class="donation-btn shake" style="background:#ffd1d1;">3,000원 기부</button>
@@ -217,37 +220,38 @@
 </div>
 
 <div id="adPopup" class="hidden">
-  <span>📢 <b>특별 할인!</b> 지금 가입하면 <span style="color:red;">50%</span> 할인!</span>
+  <span>📢 <b>할인!</b> 가입 시 <span style="color:red;">50%</span>↓</span>
   <button id="adClose" style="
     background: red;
     color: white;
     border: none;
     border-radius: 5px;
-    padding: 5px 10px;
+    padding: 3px 8px;
     cursor: pointer;
     font-weight: bold;
-    margin-left: 10px;
-  ">닫기 X</button>
+    font-size: 12px;
+  ">닫기</button>
 </div>
 
 <button id="finalRealPayBtn" class="hidden"
   style="
     position: fixed;
-    bottom: 80px; /* 광고 배너 바로 위쪽에 위치하도록 조정 */
-    right: 20px;
+    bottom: 60px; /* 광고 배너 바로 위 */
+    right: 15px;
     transform: scale(0.7);
-    opacity: 1;
-    filter: blur(1px);
-    background: #FFFFFF;
-    color: #808080;
-    border: 3px solid #FFFFFF;
-    padding: 15px 25px;
+    opacity: 0.8;
+    filter: blur(5px);
+    background: #88ff99;
+    color: #000;
+    border: 2px solid #44aa55;
+    padding: 10px 15px;
     font-size: 18px;
+    font-weight: bold;
     z-index: 10000;
-    border-radius: 12px;
+    border-radius: 8px;
     cursor: pointer;
   ">
-  Payment
+  진짜 결제
 </button>
 
 <script>
@@ -279,7 +283,7 @@ function generateRecipe() {
     dine:  dineType[Math.floor(Math.random()*dineType.length)]
   };
   document.getElementById("recipeText").innerHTML = `
-    <span style="font-size:1.3em; color:#0055ff; font-weight:bold;">${recipe.drink}</span><br>
+    <span style="font-size:1.2em; color:#0055ff; font-weight:bold;">${recipe.drink}</span><br>
     ${recipe.temp} / ${recipe.size} / ${recipe.shot}<br>
     ${recipe.ice} / ${recipe.sugar}<br>
     <b style="color:#d32f2f;">${recipe.dine}</b>
@@ -288,7 +292,7 @@ function generateRecipe() {
 
 /* -------------------- 단계 정보 -------------------- */
 let step = 1;
-let time = 90;
+let time = 60;
 let timerInterval;
 
 const correct = {
@@ -341,16 +345,14 @@ function resetGame() {
   renderStep();
 }
 
-/* -------------------- 광고 (하단 배너) -------------------- */
+/* -------------------- 광고 -------------------- */
 function showAd() {
   const ad = document.getElementById("adPopup");
   ad.classList.remove("hidden");
  
   const close = document.getElementById("adClose");
-  // 닫기 버튼은 배너 안에 얌전히 있음
   close.onclick = () => ad.classList.add("hidden");
 
-  // 가끔씩 다시 나타남
   setTimeout(() => { if(Math.random() < 0.6) showAd(); }, 5000);
 }
 
@@ -358,7 +360,7 @@ function showAd() {
 function randomBlurShock() {
   const choices = document.getElementById("choices");
   if (!choices.classList.contains("hidden")) {
-    let randomBlur = Math.floor(Math.random()*6)+2;
+    let randomBlur = Math.floor(Math.random()*6)+4;
     choices.style.filter = `blur(${randomBlur}px)`;
     setTimeout(() => choices.style.filter = "", 300);
   }
@@ -380,10 +382,10 @@ function renderStep() {
     btn.className = "choice-btn";
     btn.innerText = text;
    
-    // 일반 메뉴 버튼 회피 효과는 유지
+    // 버튼 회피 효과 (모바일에서 6개일 때 더 어려워짐)
     btn.onmouseover = () => {
-      btn.style.transform = `translate(${(Math.random()*40)-20}px, ${(Math.random()*40)-20}px)`;
-      box.style.filter = `blur(${2 + Math.random()*3}px)`;
+      btn.style.transform = `translate(${(Math.random()*30)-15}px, ${(Math.random()*30)-15}px)`;
+      box.style.filter = `blur(${5 + Math.random()*3}px)`;
     };
     btn.onmouseout = () => {
       btn.style.transform = "translate(0,0)";
@@ -417,14 +419,12 @@ function enterPaymentTrap() {
   document.getElementById("donationGroup").classList.remove("hidden");
   document.getElementById("finalRealPayBtn").classList.remove("hidden");
 
-  // 함정(기부) 버튼들
   const traps = ["donationYesBtn", "donationNoBtn", "donation1000","donation3000","donation10000"];
   traps.forEach(id => {
     const btn = document.getElementById(id);
     btn.onclick = resetGame;
    
-    // [수정] 마우스 오버 시 블러 효과 제거
-    // 단순히 버튼만 도망다니고, 화면 블러(kioskContainer.filter)는 적용하지 않음
+    // 버튼만 도망다니고 블러는 없음
     btn.onmouseover = () => {
       btn.style.transform = `translate(${(Math.random()*60)-30}px, ${(Math.random()*60)-30}px)`;
     };
@@ -433,16 +433,14 @@ function enterPaymentTrap() {
     };
   });
 
-  // 진짜 결제
   const realPay = document.getElementById("finalRealPayBtn");
   realPay.onclick = () => {
     alert("🎉 축하합니다! 드디어 결제에 성공하셨습니다!");
     location.reload();
   };
  
-  // 진짜 버튼 흐림 효과는 유지 (찾기 어렵게)
   realPay.onmouseover = () => {
-    realPay.style.filter = "blur(5px)";
+    realPay.style.filter = "blur(10px)";
     realPay.style.transform = "scale(0.7) translate(-10px, -10px)";
   };
   realPay.onmouseout = () => {
